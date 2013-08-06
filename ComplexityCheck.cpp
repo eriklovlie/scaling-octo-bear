@@ -31,13 +31,15 @@ public :
 virtual void run(const MatchFinder::MatchResult &Result) {
 	if (const FunctionDecl *fun = Result.Nodes.getNodeAs<clang::FunctionDecl>("functionDef")){
 		FullSourceLoc startLocation = Result.Context->getFullLoc(fun->getLocStart());
+		if ( startLocation.isInSystemHeader() )
+			return;
 		FullSourceLoc endLocation = Result.Context->getFullLoc(fun->getLocEnd());
 		if (startLocation.isValid() && endLocation.isValid() ){
-			llvm::outs() << "Found declaration at ("
-				<< startLocation.getSpellingLineNumber() << ":"
-				<< startLocation.getSpellingColumnNumber() << ") - ("
-				<< endLocation.getSpellingLineNumber() << ":"
-				<< endLocation.getSpellingColumnNumber() << ")\n";
+			llvm::outs() << "Found declaration for function "
+				<< Result.Context->getSourceManager().getFilename(startLocation) << ":"
+				<< fun->getNameInfo().getName().getAsString() << " at ("
+				<< startLocation.getSpellingLineNumber() << "-"
+				<< endLocation.getSpellingLineNumber() << ")\n";
 		}
 	}
 }
