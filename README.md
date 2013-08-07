@@ -30,13 +30,13 @@ These are some other tools out there:
 * Static analysis tools, e.g. Cppcheck and Clang tools. They focus on correctness, not readability.
 * Various other linting tools. Those which even support C++ seem less than robust.
 
-Requirements
----------------
+Requirements (i.e. what should the tool do):
+--------------------------------------------
 
-* extracts important quality metrics (function length, nesting depth, cyclomatic complexity, etc)
+* extract important quality metrics (function length, nesting depth, cyclomatic complexity, etc)
 * output results in machine readable format (e.g. JSON)
 * robust support for C++ (including recent standards, e.g. C++11)
-* makes no assumption on the formatting of the source code, and no attempt at reformatting.
+* make no assumption on the formatting of the source code, and no attempt at reformatting.
 * easily integrated in existing build flows (Makefiles, cmake, scripts, Jenkins, etc)
 
 Building
