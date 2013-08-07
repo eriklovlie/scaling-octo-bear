@@ -30,6 +30,8 @@ public :
 
 virtual void run(const MatchFinder::MatchResult &Result) {
 	if (const FunctionDecl *fun = Result.Nodes.getNodeAs<clang::FunctionDecl>("functionDef")){
+		if ( fun->isDefaulted() )
+			return; // ignore implicit functions
 		FullSourceLoc startLocation = Result.Context->getFullLoc(fun->getLocStart());
 		if ( startLocation.isInSystemHeader() )
 			return;
