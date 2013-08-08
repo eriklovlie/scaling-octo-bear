@@ -55,15 +55,15 @@ def current_long_functions():
 def is_exacerbated():
     with open('long_functions.json') as f:
         old = json.load(f)
-    ok = True
+    exacerbated = False
     current = current_long_functions()
     for fun, length in current.items():
         if not fun in old:
-            ok = False
+            exacerbated = True
             print "ERROR: New long function {} ({} lines).".format(fun, length)
         else:
             if length > old[fun]:
-                ok = False
+                exacerbated = True
                 print "ERROR: Exacerbated long function {} (previously {} lines, now {}).".format(fun, old[fun], length)
             elif length < old[fun]:
                 print "INFO: Long function {} made shorter (previously {} lines, now {}).".format(fun, old[fun], length)
@@ -74,8 +74,11 @@ def is_exacerbated():
         del old[fun]
     with open('long_functions.json', 'w') as f:
         json.dump(old, f)
-    return ok
+    return exacerbated
 
 if __name__ == "__main__":
+    print "Running check for bad changes."
     if is_exacerbated():
+        print "Yep, made worse."
         exit(1)
+    print "Nope, we are no worse than before."
