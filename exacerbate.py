@@ -34,14 +34,13 @@ as long as each new function is below the threshold.
 """
 
 import os.path
-import yaml
 import json
 
 threshold = 100
 
 def current_long_functions():
-    with open('metrics.yaml') as f:
-        doc = yaml.load(f)
+    with open('metrics.json') as f:
+        doc = json.load(f)
     new = {}
     for func in doc:
         start = func['line_start']

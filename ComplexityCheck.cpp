@@ -5,6 +5,7 @@
 #include "clang/AST/ASTContext.h"
 #include "clang/ASTMatchers/ASTMatchers.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
+#include <sstream>
 
 using namespace llvm;
 using namespace clang;
@@ -12,14 +13,12 @@ using namespace clang::ast_matchers;
 using namespace clang::tooling;
 
 static cl::extrahelp CommonHelp(CommonOptionsParser::HelpMessage);
-static cl::extrahelp MoreHelp("\nThis tool outputs some useful software metrics for C++ code in YAML.\n");
+static cl::extrahelp MoreHelp("\nThis tool outputs some useful software metrics for C++ code in JSON format.\n");
 
 DeclarationMatcher FunctionMatcher =
 	functionDecl(isDefinition()).bind("functionDef");
 
-// This class outputs the metrics to stdout in YAML. To keep things simple the YAML is output
-// using the normal diagnostic output stuff. Can use the llvm YAML library later if there's
-// a benefit to that (e.g. if we need to read a configuration YAML file).
+// This class outputs the metrics to stdout in the form of a JSON array.
 class FunctionPrinter : public MatchFinder::MatchCallback {
 
 public:
@@ -33,19 +32,40 @@ public:
 				return;
 			FullSourceLoc endLocation = Result.Context->getFullLoc(fun->getLocEnd());
 			if (startLocation.isValid() && endLocation.isValid() ){
-				llvm::outs() << "- { "
-					<< "file_name: " << Result.Context->getSourceManager().getFilename(startLocation) << ", "
-					<< "fun_name: " << fun->getQualifiedNameAsString() << ", "
-					<< "line_start: " << startLocation.getSpellingLineNumber() << ", "
-					<< "line_end: " << endLocation.getSpellingLineNumber()
-					<< " }\n";
+				flush();
+				ss << "{ ";
+				ss << "\"file_name\": \"";
+				ss << Result.Context->getSourceManager().getFilename(startLocation).str();
+				ss << "\", ";
+				ss << "\"fun_name\": \"";
+				ss << fun->getQualifiedNameAsString();
+				ss << "\", ";
+				ss << "\"line_start\": ";
+				ss << startLocation.getSpellingLineNumber();
+				ss << ", ";
+				ss << "\"line_end\": ";
+				ss << endLocation.getSpellingLineNumber();
+				ss << " }";
 			}
 
 			//llvm::outs() << "max_depth = " << max_nesting_depth(fun) << "\n";
 		}
 	}
 
+	void flush( bool last=false ){
+		if ( !ss.str().empty() ){
+			llvm::outs() << ss.str();
+			if ( !last ){
+				llvm::outs() << ",";
+			}
+			llvm::outs() << "\n";	
+			ss.str("");
+		}
+	}
+
 private:
+	std::stringstream ss;
+
 	/*
 	int max_nesting_depth ( const FunctionDecl *fun ){
 		Stmt *body = fun->getBody();
@@ -77,5 +97,10 @@ int main(int argc, const char **argv) {
 	MatchFinder Finder;
 	Finder.addMatcher(FunctionMatcher, &Printer);
 
-	return Tool.run(newFrontendActionFactory(&Finder));
+	llvm::outs() << "[\n";
+	int retcode = Tool.run(newFrontendActionFactory(&Finder));
+	Printer.flush(true);
+	llvm::outs() << "]\n";
+
+	return retcode;
 }
