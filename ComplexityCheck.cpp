@@ -21,27 +21,52 @@ DeclarationMatcher FunctionMatcher =
 // using the normal diagnostic output stuff. Can use the llvm YAML library later if there's
 // a benefit to that (e.g. if we need to read a configuration YAML file).
 class FunctionPrinter : public MatchFinder::MatchCallback {
-public :
 
-virtual void run(const MatchFinder::MatchResult &Result) {
-	if (const FunctionDecl *fun = Result.Nodes.getNodeAs<clang::FunctionDecl>("functionDef")){
-		if ( fun->isDefaulted() )
-			return; // ignore implicit functions
-		FullSourceLoc startLocation = Result.Context->getFullLoc(fun->getLocStart());
-		if ( startLocation.isInSystemHeader() )
-			return;
-		FullSourceLoc endLocation = Result.Context->getFullLoc(fun->getLocEnd());
-		if (startLocation.isValid() && endLocation.isValid() ){
-			llvm::outs() << "- { "
-				<< "file_name: " << Result.Context->getSourceManager().getFilename(startLocation) << ", "
-				<< "fun_name: " << fun->getNameInfo().getName().getAsString() << ", "
-				<< "line_start: " << startLocation.getSpellingLineNumber() << ", "
-				<< "line_end: " << endLocation.getSpellingLineNumber()
-				<< " }\n";
+public:
+
+	virtual void run(const MatchFinder::MatchResult &Result) {
+		if (const FunctionDecl *fun = Result.Nodes.getNodeAs<clang::FunctionDecl>("functionDef")){
+			if ( fun->isDefaulted() )
+				return; // ignore implicit functions
+			FullSourceLoc startLocation = Result.Context->getFullLoc(fun->getLocStart());
+			if ( startLocation.isInSystemHeader() )
+				return;
+			FullSourceLoc endLocation = Result.Context->getFullLoc(fun->getLocEnd());
+			if (startLocation.isValid() && endLocation.isValid() ){
+				llvm::outs() << "- { "
+					<< "file_name: " << Result.Context->getSourceManager().getFilename(startLocation) << ", "
+					<< "fun_name: " << fun->getQualifiedNameAsString() << ", "
+					<< "line_start: " << startLocation.getSpellingLineNumber() << ", "
+					<< "line_end: " << endLocation.getSpellingLineNumber()
+					<< " }\n";
+			}
+
+			//llvm::outs() << "max_depth = " << max_nesting_depth(fun) << "\n";
 		}
 	}
-}
 
+private:
+	/*
+	int max_nesting_depth ( const FunctionDecl *fun ){
+		Stmt *body = fun->getBody();
+		return max_nesting_depth_recursive( body, 0 );
+	}
+
+	int max_nesting_depth_recursive ( const Stmt *stmt, int depth ){
+		// FIXME It is a bit unclear to me how to cleanly separate actual statements from Expr which inherits Stmt
+		// Also there are some implicitly added statements that we don't want to include.
+		int max = depth;
+		for ( ConstStmtIterator child = stmt->child_begin(); child != stmt->child_end(); child++ ){
+			if ( is_compound( *child) )
+				max = std::max( max, max_nesting_depth_recursive( *child, depth + 1 ) );
+		}
+		return max;
+	}
+
+	bool is_compound ( const Stmt *stmt ){
+		return dynamic_cast<const CompoundStmt*>(stmt) != NULL;
+	}
+*/
 };
 
 int main(int argc, const char **argv) {
