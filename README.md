@@ -27,8 +27,12 @@ These are some other tools out there:
 * uncrustify: nice source code formatter.
 * astyle: source code formatter. A bit buggy and doesn't work with recent C++ standards.
 * Google's cpplint. Requires you to follow the Google C++ style.
-* Static analysis tools, e.g. Cppcheck and Clang tools. They focus on correctness, not readability.
+* Static analysis tools, e.g. Cppcheck and Clang[1] tools. They focus on correctness, not readability.
 * Various other linting tools. Those which even support C++ seem less than robust.
+
+[1] Why haven't the Clang people already made such a tool? The interwebs are full of formatters and
+translaters, but very few good tools for extracting basic software metrics. Oh well, at least they
+made a nice library.
 
 Requirements (i.e. what should the tool do):
 --------------------------------------------
