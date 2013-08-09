@@ -1,6 +1,12 @@
 scaling-octo-bear
 =================
 
+Wiki
+----
+
+See the [wiki](https://github.com/eriklovlie/scaling-octo-bear/wiki) for a detailed
+overview and usage instructions.
+
 About
 -----
 
