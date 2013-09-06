@@ -37,8 +37,6 @@ import os.path
 import json
 import operator
 
-threshold = 100
-
 def current_long_functions():
     with open('long_functions.json') as f:
         doc = json.load(f)
