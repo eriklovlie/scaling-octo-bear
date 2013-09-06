@@ -35,6 +35,7 @@ as long as each new function is below the threshold.
 
 import os.path
 import json
+import operator
 
 threshold = 100
 
@@ -73,6 +74,9 @@ def is_exacerbated():
         del old[fun]
     with open('long_functions.json', 'w') as f:
         json.dump(old, f)
+    print "Current set of long functions:"
+    for name, length in sorted(old.iteritems(), key=operator.itemgetter(1)):
+	print "{:>6}: {}".format(length, name)
     return exacerbated
 
 if __name__ == "__main__":
