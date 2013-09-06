@@ -40,20 +40,12 @@ import operator
 threshold = 100
 
 def current_long_functions():
-    with open('metrics.json') as f:
+    with open('long_functions.json') as f:
         doc = json.load(f)
-    new = {}
-    for func in doc:
-        start = func['line_start']
-        end = func['line_end']
-        length = end - start
-        if length > threshold:
-            funid = "{}:{}".format(os.path.basename(func['file_name']), func['fun_name'])
-            new[funid] = length
-    return new
+    return doc
 
 def is_exacerbated():
-    with open('long_functions.json') as f:
+    with open('long_functions_old.json') as f:
         old = json.load(f)
     exacerbated = False
     current = current_long_functions()
@@ -72,7 +64,7 @@ def is_exacerbated():
     for fun in fixed:
         print "INFO: Fixed or removed {} (previously {} lines)".format(fun, old[fun])
         del old[fun]
-    with open('long_functions.json', 'w') as f:
+    with open('long_functions_old.json', 'w') as f:
         json.dump(old, f)
     print "Current set of long functions:"
     for name, length in sorted(old.iteritems(), key=operator.itemgetter(1)):
