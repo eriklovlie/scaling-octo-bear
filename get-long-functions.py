@@ -25,9 +25,11 @@ def exempt(func):
     with open(func['file_name']) as f:
         lines = f.readlines()
     line_start = func['line_start']
-    if line_start > 0:
-        prev_line = lines[line_start - 1]
-        return "[STYLE-CHECK IGNORE LONG FUNCTION]" in prev_line
+    # NOTE: line numbers start at 1, so line 2 is actually 1, prev being 0.
+    line_prev = line_start - 2
+    if line_prev >= 0:
+        line = lines[line_prev]
+        return "[STYLE-CHECK IGNORE LONG FUNCTION]" in line
     return False
 
 longfun = get_long(glob.glob("*_metrics.json"))
